@@ -1,5 +1,7 @@
 # crime-by-postcode
 
+A simple Vue.js application to show results from two third party API's based on postcode input
+
 ## Project setup
 ```
 npm install
