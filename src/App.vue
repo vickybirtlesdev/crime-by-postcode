@@ -54,7 +54,10 @@
             Your search for crime in {{ this.searchedPostcode }} returned
             {{ this.crimes.length }} results
           </p>
-          <p class="invalid-results text-center" v-else-if="this.formSubmitted && this.errorAtEnd">
+          <p
+            class="invalid-results text-center"
+            v-else-if="this.formSubmitted && this.errorAtEnd"
+          >
             Sorry, something went wrong.
           </p>
           <table class="results table mb-5" v-if="this.crimes">
@@ -75,7 +78,6 @@
       </div>
     </div>
   </div>
-
   <FooterMain />
 </template>
 
@@ -122,7 +124,7 @@ export default {
             .get(
               `https://data.police.uk/api/crimes-at-location?date=2021-09&lat=${this.postcode.result.latitude}&lng=${this.postcode.result.longitude}`
             )
-            .then((response) => (this.crimes = response.data))
+            .then((response) => (this.crimes = response.data));
 
           this.formSubmitted = true;
           this.errorAtEnd = false;
@@ -180,7 +182,7 @@ body {
   color: red;
   font-size: 0.875em;
 }
-.invalid-results{
+.invalid-results {
   color: red;
 }
 .btn.disabled,
