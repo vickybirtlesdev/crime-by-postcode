@@ -20,7 +20,7 @@
                 @mousedown="resetData"
               />
               <div id="postcodeHelp" class="form-text mb-3">
-                for example BD176DN
+                for example BD17 6DN
               </div>
               <p
                 v-for="error of v$.$errors"
@@ -49,22 +49,21 @@
   <div id="main">
     <div class="inner">
       <div class="container">
-        <div class="results-container">
+        <div class="results-container py-5">
           <p v-if="this.formSubmitted && !this.errorAtEnd">
             Your search for crime in {{ this.searchedPostcode }} returned
             {{ this.crimes.length }} results
           </p>
-          <p
-            class="invalid-results text-center"
-            v-else-if="this.formSubmitted && this.errorAtEnd"
-          >
-            Sorry, something went wrong.
+          <p class="invalid-results text-center" v-if="this.errorAtEnd">
+            Sorry, something went wrong. Please try again.
           </p>
-          <table class="results table mb-5" v-if="this.crimes">
+          <table class="results table mb-5" v-if="this.crimes.length > 0">
             <thead>
-              <td><strong>Nature of crime</strong></td>
-              <td><strong>Outcome of result:</strong></td>
-              <td><strong> Date of Outcome:</strong></td>
+              <tr>
+                <th><strong>Nature of crime</strong></th>
+                <th><strong>Outcome of result:</strong></th>
+                <th><strong> Date of Outcome:</strong></th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="crime in crimes" :key="crime.id">
@@ -104,7 +103,7 @@ export default {
       crimes: "",
       searchedPostcode: null,
       formSubmitted: null,
-      errorAtEnd: false,
+      errorAtEnd: null,
     };
   },
   validations() {
@@ -124,13 +123,37 @@ export default {
             .get(
               `https://data.police.uk/api/crimes-at-location?date=2021-09&lat=${this.postcode.result.latitude}&lng=${this.postcode.result.longitude}`
             )
-            .then((response) => (this.crimes = response.data));
+            .then((response) => (this.crimes = response.data))
+            .catch((error) => {
+              if (error.response) {
+                //response status is an error code
+                console.log(error.response.status);
+              } else if (error.request) {
+                //response not received though the request was sent
+                console.log(error.request);
+              } else {
+                //an error occurred when setting up the request
+                console.log(error.message);
+              }
+              this.errorAtEnd = true;
+            });
 
           this.formSubmitted = true;
           this.errorAtEnd = false;
         })
-        // Error
-        .catch((e) => console.log(e), (this.errorAtEnd = true));
+        .catch((error) => {
+          if (error.response) {
+            //response status is an error code
+            console.log(error.response.status);
+          } else if (error.request) {
+            //response not received though the request was sent
+            console.log(error.request);
+          } else {
+            //an error occurred when setting up the request
+            console.log(error.message);
+          }
+          this.errorAtEnd = true;
+        });
     },
     resetData() {
       this.crimes = "";
@@ -143,55 +166,60 @@ export default {
 
 <style lang="scss">
 body {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 #app {
-  font-family: "Raleway", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: "Raleway", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 #main {
-  color: #333333;
-  .inner {
-    padding: 40px 0;
-  }
+    color: #333333;
 }
 .header-bg {
-  background: url("./assets/street.jpeg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  padding: 100px 0;
+    background: url("./assets/street.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 50px 0;
+    @media only screen and (min-width: 600px) {
+      padding: 100px 0;
+    }
 }
 .header-content-bg {
-  background: rgba(255, 255, 255, 0.8);
-  padding-top: 20px;
-  padding-bottom: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 .postcode-search {
-  padding: 20px;
-  background: white;
-  form {
-    color: #111111;
-    .form-text {
-      color: #111111;
+    padding: 20px;
+    background: white;
+    form {
+        color: #111111;
+        .form-text {
+            color: #111111;
+        }
     }
-  }
 }
 .invalid-field {
-  color: red;
-  font-size: 0.875em;
+    color: red;
+    font-size: 0.875em;
 }
 .invalid-results {
-  color: red;
+    color: red;
 }
 .btn.disabled,
 .btn:disabled {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 .results {
-  tr td:first-child {
-    text-transform: capitalize;
-  }
+    th{
+        text-align: left;
+    }
+    tbody {
+        tr td:first-child {
+            text-transform: capitalize;
+        }
+    }
 }
 </style>
