@@ -143,13 +143,10 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
-            //response status is an error code
             console.log(error.response.status);
           } else if (error.request) {
-            //response not received though the request was sent
             console.log(error.request);
           } else {
-            //an error occurred when setting up the request
             console.log(error.message);
           }
           this.errorAtEnd = true;
